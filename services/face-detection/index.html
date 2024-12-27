@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Face Detection</title>
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <!-- Face API -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.12/dist/face-api.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #1a73e8;
+            text-align: center;
+        }
+
+        #dropZone {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed #1a73e8;
+            border-radius: 10px;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        #dropZone.dragover {
+            background: #e8f0fe;
+            border-color: #1a73e8;
+            transform: scale(1.02);
+        }
+
+        #pdfInput {
+            display: none;
+        }
+
+        .upload-btn {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background-color: #1557b0;
+        }
+
+        #result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            text-align: center;
+        }
+
+        .page-container {
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .page-title {
+            color: #1a73e8;
+            margin-bottom: 10px;
+        }
+
+        canvas {
+            max-width: 100%;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1a73e8;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #pagesContainer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF Face Detection</h1>
+        <div id="dropZone">
+            <p>Drop PDF here or</p>
+            <input type="file" accept=".pdf" id="pdfInput">
+            <button class="upload-btn" onclick="document.getElementById('pdfInput').click()">
+                Choose PDF File
+            </button>
+        </div>
+        <div class="loader" id="loader"></div>
+        <div id="result">Ready to analyze PDF!</div>
+        <div id="pagesContainer"></div>
+    </div>
+
+    <script>
+        // Initialize PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+        const pdfInput = document.getElementById('pdfInput');
+        const resultDiv = document.getElementById('result');
+        const dropZone = document.getElementById('dropZone');
+        const loader = document.getElementById('loader');
+        const pagesContainer = document.getElementById('pagesContainer');
+
+        // Process PDF file
+        async function processPDF(pdfFile) {
+            try {
+                loader.style.display = 'block';
+                resultDiv.textContent = 'Processing PDF...';
+                pagesContainer.innerHTML = '';
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('file', pdfFile);
+
+                // Send PDF for processing
+                const response = await fetch('/process-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                let totalFaces = 0;
+                
+                // Process each page
+                for (const page of result.pages) {
+                    totalFaces += page.face_count;
+                    
+                    // Create page container
+                    const pageDiv = document.createElement('div');
+                    pageDiv.className = 'page-container';
+                    pageDiv.innerHTML = `<h3 class="page-title">Page ${page.page_number}</h3>`;
+
+                    // Get page preview with boxes
+                    const previewFormData = new FormData();
+                    previewFormData.append('file', pdfFile);
+                    previewFormData.append('page', page.page_number - 1);
+                    previewFormData.append('faces', JSON.stringify(page.faces));
+
+                    const previewResponse = await fetch('/draw-boxes', {
+                        method: 'POST',
+                        body: previewFormData
+                    });
+
+                    if (previewResponse.ok) {
+                        const blob = await previewResponse.blob();
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(blob);
+                        pageDiv.appendChild(img);
+                    }
+
+                    pageDiv.innerHTML += `<p>Found ${page.face_count} face(s) on this page</p>`;
+                    pagesContainer.appendChild(pageDiv);
+                }
+
+                resultDiv.textContent = `Total faces detected in PDF: ${totalFaces}`;
+
+            } catch (error) {
+                console.error('PDF processing error:', error);
+                resultDiv.textContent = 'Error processing PDF: ' + error.message;
+            }
+            loader.style.display = 'none';
+        }
+
+        // Event Listeners
+        pdfInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                processPDF(file);
+            }
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                processPDF(file);
+            } else {
+                resultDiv.textContent = 'Please upload a PDF file.';
+            }
+        });
+    </script>
+</body>
+</html>
+
+

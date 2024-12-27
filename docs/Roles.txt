@@ -1,0 +1,143 @@
+Roles:
+
+Super Admin
+Organisation Admin
+Organisartion User
+
+Who can register:
+Organisations Admin can register 
+
+
+Auth Page:
+	Register
+		Register as user/organisation?
+
+			if Organisation:
+				Org Name:
+				Org Sector:
+				About Org:
+				Org Admin Name
+				Org Admin Email
+				Org Admin Password
+				Org Group ID
+				Org Admin Password
+
+			if Org User:
+				User Full name
+				Username
+				Email 
+				Associated with which Org:(select combobox Show list of available Organisations)
+				User Password
+	Login
+		Login as Org User/Org Admin/Super Admin?
+		UserID:
+		Passwd:
+		Stay login till next hours/mins/days?
+		
+	Reset Password:
+		If Org User:
+			Send Password to Associated Email Address
+			show Org Admin Email Address to contact for further contact
+		If Org Admin:
+			Show Super Admin Email Address to contact
+			Send Password to Associated Email Address
+			
+			
+Dashboard:
+	if user is Super Admin:
+		Show Tabs:
+			User Management:
+				Org Sections:
+				
+					Contains Newly registered Organisation, show options to inspect the Organisation Information and Approve or Reject Organistions
+					if Org Approved:
+						set Org Verified = True
+					if Org Rejected:
+						Delete Org entry from table.
+					
+					Super Admin can, edit Org Information
+					
+				User Sections:
+					Contains newly registered users associated to orgs, show options to inspect the Organisation Information and Approve or Reject user
+					if User Approved:
+						set User Verified = True
+					if User Rejected:
+						delete the Register Entry from Table
+					Super Admin can also, view, edit, Delet User Information
+			Monitor Logs:
+				Show Which Data Sources were sent from which Organisations to which Organisations as well as from User to User along with the Redaction Parameters
+				Along with the time stamps
+			Add Data sources:
+				Can Upload Data sources, Document of all types:
+				Types of DataSources:
+					Zip files -> Contains many Documents
+					PDFs, DOCx, XLXS, TEXT documents
+					
+				Let User upload the Datasources, get the metadata and populate the fields and keep them editable so that user can modify and upload datasources
+				After upload:
+					Process the Documents:> till then show loader and call api /api/get-parameters with metadata in post data and file itself
+					Store the response which contains success:True and PII_parameters:{} 
+					into the database so that it can be show in future what PIIs are detected in this document
+					Assign a Unique ID to the DataSource and store in database, along with the Uploaded by, Created by, Created at, timetamp, Assigned to any User (search by Email or Userid show in the combo select list)
+				Set Scope:
+					Scope is something which defines, who has access to the data, which Organisations, which Users etc,
+					Show this via filesystem path kinda thing.
+				Finally Upload the Datasource,
+					Send email to respective Organisation to notify that, Certain Data Source is added to their Scope
+					Thru an API: /api/send-email along with the post data
+					
+		if Organisation Admin:
+			
+
+	if user is Organisations Admin:
+		Show Sections: 	
+			User Sections:
+					Contains newly registered users associated to this org only, show options to inspect and Approve or Reject user
+					if User Approved:
+						set User Verified = True
+					if User Rejected:
+						delete the Register Entry from Table
+					Org Admin can also, view, edit, Delet User Information
+			Monitor Logs:
+				Show Which Data Sources from User to User along with the Redaction Parameters
+				Along with the time stamps
+			Add Data sources Section:
+				Can Upload Data sources, Document of all types:
+				Types of DataSources:
+					Zip files -> Contains many Documents
+					PDFs, DOCx, XLXS, TEXT documents
+			
+				Let User upload the Datasources, get the metadata and populate the fields and keep them editable so that user can modify and upload datasources
+				After upload:
+					Process the Documents:> till then show loader and call api /api/get-parameters with metadata in post data and file itself
+					Store the response which contains success:True and PII_parameters:{} 
+					into the database so that it can be show in future what PIIs are detected in this document
+					Assign a Unique ID to the DataSource and store in database, along with the Uploaded by, Created by, Created at, timetamp, Assigned to any User (search by Email or Userid show in the combo select list)
+				Set Scope:
+					Scope is something which defines, who has access to the data, which Organisations, which Users etc,
+					Show this via filesystem path kinda thing.
+				Finally Upload the Datasource,
+					Send email to respective Organisation to notify that, Certain Data Source is added to their Scope
+					Thru an API: /api/send-email along with the post data
+			Received Documents Sections:
+				Show redacted data sources received to this organisation:
+				Let the Org Admin go thru the whole document
+				then, ask if satisfied with the information received, show options to add comments and send back to the sender organisation, to receive the documents again with more or less PII information Redacted.
+			Redaction Sections:
+				Show Data Sources owned by the org and its user, and its uploader, show options to redact the documents for PII informations
+				 When clicked:
+				 	show modal with fields like,
+				 		Label: Detected PIIs in Documents
+				 		PIIs to redact -> combo select box let the user select which PII to redact from the document.
+				 		After the process started show loader and ask user to wait.
+				 		After the redaction, show user to Preview the documents if not satisfied start the process again, 
+				 		Show Option to Download the docs, or send to other Organisation
+						if want to send, show list of Organisations and select combo box and make user to click send.
+						send email to the reciepient Organisation about this.
+						
+		if User:
+			pass
+			
+
+			
+		
