@@ -1,0 +1,10 @@
+- [x] Arrays and strings
+- [x] Hashmaps and sets
+- [ ] Linked lists
+- [ ] Stacks and queues
+- [ ] Trees and graphs
+- [ ] Heaps
+- [ ] Greedy algorithms
+- [ ] Binary search
+- [ ] Backtracking
+- [ ] Dynamic programming

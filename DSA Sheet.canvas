@@ -1,0 +1,9 @@
+{
+	"nodes":[
+		{"id":"c8a7ffcc89e549ec","type":"text","text":"what the hell is this\n","x":-360,"y":-160,"width":250,"height":60},
+		{"id":"e27d69b4aab94f59","type":"file","file":"Placements/DSA To do list.md","x":0,"y":-200,"width":400,"height":400,"color":"6"}
+	],
+	"edges":[
+		{"id":"94f6ab59be816e0a","fromNode":"c8a7ffcc89e549ec","fromSide":"bottom","toNode":"e27d69b4aab94f59","toSide":"left"}
+	]
+}

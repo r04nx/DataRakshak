@@ -1,7 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
-*.class
+*$py.class
 *.so
 .Python
 build/
@@ -19,25 +19,25 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.env
-.venv
-env/
+MANIFEST
+
+# Virtual Environment
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+.env
+
+# IDEs
 .idea/
 .vscode/
-node_modules/
-
-# Development
-.DS_Store
 *.swp
 *.swo
+*~
 
 # Project specific
-*.db
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 *.log
-uploads/
-temp/
-
+.DS_Store
