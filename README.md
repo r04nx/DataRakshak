@@ -1,4 +1,4 @@
-# Obsidian Project
+# Data Rakshak
 
 A hackathon project for processing and analyzing media content with face detection and privacy features.
 
